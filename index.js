@@ -7,9 +7,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-let users = []
-const messages = []
-
+let users = [];
+const messages = [];
 app.post('/participants', (req, res) => {
     const user = req.body;
     if(user.name === '') {
@@ -41,19 +40,19 @@ app.post('/messages', (req, res) => {
         (message.type !== 'message' && message.type !== 'private_message') || 
         !users.find(user => user.name === username)
         ) {
-        res.sendStatus(400)
-    } else {
-        messages.push({
-            ...message,
-            from: username,
-            time: dayjs().format('HH:mm:ss'),
-        });
-        res.sendStatus(200);
-    }
-});
+            res.sendStatus(400)
+        } else {
+            messages.push({
+                ...message,
+                from: username,
+                time: dayjs().format('HH:mm:ss'),
+            });
+            res.sendStatus(200);
+        }
+    });
 app.get('/messages', (req, res) => {
     const limit = Number(req.query.limit);
-    const accessibleMessages = messages.filter(message => message.from === req.headers.user || message.from === 'Todos');
+    const accessibleMessages = messages.filter(message => !(message.type === 'private_message' && message.to !== req.headers.user && message.from !== req.headers.user));
     if(accessibleMessages.length <= limit || limit === undefined) {
         res.send(accessibleMessages);
     } else {
